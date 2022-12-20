@@ -20,11 +20,13 @@ from django.conf.urls.static import static
 from ads import views
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.root),
     path('cat/', include('categories.urls')),
     path('ad/', include('ads.urls')),
+    path('user/', include('users.urls')),
 ]
 
 if settings.DEBUG:
