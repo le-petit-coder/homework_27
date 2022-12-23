@@ -18,6 +18,10 @@ def csv_to_json(csvFilePath, jsonFilePath, model):
                     row["is_published"] = True
                 else:
                     row["is_published"] = False
+            if "location_id" in row:
+                row["locations"] = [row["location_id"]]
+                del row["location_id"]
+
             record["fields"] = row
             jsonArray.append(record)
 
