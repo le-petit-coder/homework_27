@@ -4,55 +4,48 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
+from rest_framework.generics import ListAPIView
+from ads.serializers import AdListSerializer
 from ads.models import Ad
 from users.models import User
 from categories.models import Category
-from django.core.paginator import Paginator
-from homework_27.settings import TOTAL_ON_PAGE
 
 
 def root(request):
     return JsonResponse({"status": "ok"}, status=200)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class AdListView(ListView):
-    model = Ad
+class AdListView(ListAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = AdListSerializer
 
     def get(self, request, *args, **kwargs):
-        super().get(request, *args, **kwargs)
+        ad_text = request.GET.get('text', None)
+        if ad_text:
+            self.queryset = self.queryset.filter(
+                name__icontains=ad_text
+            )
 
-        search_text = request.GET.get("text", None)
-        if search_text:
-            self.object_list = self.object_list.filter(text=search_text)
+        cat_query = request.GET.get('cat', None)
+        if cat_query:
+            self.queryset = self.queryset.filter(
+                category_id=cat_query
+            )
 
-        self.object_list = self.object_list.order_by('-price')
+        location_name = request.GET.get('location', None)
+        if location_name:
+            self.queryset = self.queryset.filter(
+                author__locations__name__icontains=location_name
+            )
 
-        paginator = Paginator(self.object_list, TOTAL_ON_PAGE)
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
+        price_from = request.GET.get('price_from', None)
+        price_to = request.GET.get('price_to', None).rstrip('/')
+        if price_from or price_to:
+            self.queryset = self.queryset.filter(
+                price__range=(price_from, price_to)
+            )
 
-        ads = []
-        for ad in page_obj:
-            ads.append({
-                "id": ad.id,
-                "name": ad.name,
-                "author": ad.author.username,
-                "price": ad.price,
-                "description": ad.description,
-                "address": ad.address,
-                "is_published": ad.is_published,
-                "image": ad.image.url if ad.image else None,
-                "category": ad.category.name if ad.category else None
-            })
-
-        response = {
-            "items": ads,
-            "num_pages": paginator.num_pages,
-            "total": paginator.count
-        }
-
-        return JsonResponse(response, safe=False, json_dumps_params={"ensure_ascii": False}, status=200)
+        return super().get(request, *args, *kwargs)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

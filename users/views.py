@@ -7,6 +7,8 @@ from users.models import User
 from locations.models import Location
 from django.core.paginator import Paginator
 from homework_27.settings import TOTAL_ON_PAGE
+from rest_framework.generics import CreateAPIView
+from users.serializers import UserCreateSerializer
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -64,37 +66,36 @@ class UserDetailView(DetailView):
         }, status=200)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class UserCrateView(CreateView):
-    model = User
-    fields = ["username", "first_name", "last_name", "role", "age", "locations", "password"]
+class UserCreateView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserCreateSerializer
 
-    def post(self, request, *args, **kwargs):
-        user_data = json.loads(request.body)
-
-        user = User.objects.create(
-            username=user_data.get("username"),
-            first_name=user_data.get("first_name"),
-            last_name=user_data.get("last_name"),
-            password=user_data.get("password"),
-            role=user_data.get("role"),
-            age=user_data.get("age"),
-        )
-
-        for loc in user_data.get("locations"):
-            location, _ = Location.objects.get_or_create(name=loc)
-            user.locations.add(location)
-
-        return JsonResponse(
-            {
-                "id": user.id,
-                "username": user.username,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "role": user.role,
-                "age": user.age,
-                "locations": [loc.name for loc in user.locations.all()],
-            }, status=200)
+    # def post(self, request, *args, **kwargs):
+    #     user_data = json.loads(request.body)
+    #
+    #     user = User.objects.create(
+    #         username=user_data.get("username"),
+    #         first_name=user_data.get("first_name"),
+    #         last_name=user_data.get("last_name"),
+    #         password=user_data.get("password"),
+    #         role=user_data.get("role"),
+    #         age=user_data.get("age"),
+    #     )
+    #
+    #     for loc in user_data.get("locations"):
+    #         location, _ = Location.objects.get_or_create(name=loc)
+    #         user.locations.add(location)
+    #
+    #     return JsonResponse(
+    #         {
+    #             "id": user.id,
+    #             "username": user.username,
+    #             "first_name": user.first_name,
+    #             "last_name": user.last_name,
+    #             "role": user.role,
+    #             "age": user.age,
+    #             "locations": [loc.name for loc in user.locations.all()],
+    #         }, status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
