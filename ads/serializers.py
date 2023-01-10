@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from ads.models import Ad
+from ads.models import Ad, Selection
 from locations.models import Location
+from users.models import User
 
 
 class AdListSerializer(serializers.ModelSerializer):
@@ -16,11 +17,11 @@ class AdListSerializer(serializers.ModelSerializer):
 
 
 class AdDetailSerializer(serializers.ModelSerializer):
-    # skills = serializers.SlugRelatedField(
-    #     many=True,
-    #     read_only=True,
-    #     slug_field="name"
-    # )
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field="first_name"
+
+    )
 
     class Meta:
         model = Ad
@@ -41,7 +42,7 @@ class AdCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "author", "price", "locations"]
 
     def is_valid(self, *, raise_exception=False):
-        self._locations = self.initial_data.pop("locations")
+        self._locations = self.initial_data.pop("locations", [])
         return super().is_valid(raise_exception=raise_exception)
 
     def create(self, validated_data):
@@ -66,10 +67,10 @@ class AdUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ad
-        fields = ["id", "name", "author", "price", "locations"]
+        fields = ["id", "name", "author", "price", "locations", "created"]
 
     def is_valid(self, *, raise_exception=False):
-        self._locations = self.initial_data.pop("locations")
+        self._locations = self.initial_data.pop("locations", [])
         return super().is_valid(raise_exception=raise_exception)
 
     def save(self):
@@ -86,3 +87,24 @@ class AdDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad
         fields = ["id"]
+
+
+class SelectionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        fields = ["id", "name"]
+
+
+class SelectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        fields = '__all__'
+
+
+class SelectionDetailSerializer(serializers.ModelSerializer):
+    owner = serializers.SlugRelatedField(slug_field="username", queryset=User.objects.all())
+    items = AdListSerializer(many=True)
+
+    class Meta:
+        model = Selection
+        fields = '__all__'
