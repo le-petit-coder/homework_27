@@ -2,6 +2,18 @@ from rest_framework import serializers
 from locations.models import Location
 from users.models import User
 from django.contrib.auth.hashers import make_password
+from datetime import date
+
+
+# class NotUnderNineAge:
+#     def __init__(self, birthday):
+#         self.birthday = birthday
+#
+#     def __call__(self, birthday):
+#         today = date.today()
+#         age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
+#         if age < 9:
+#             raise serializers.ValidationError(f"User is younger than 9.")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,6 +35,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         queryset=Location.objects.all(),
         slug_field="name"
     )
+    # birth_date = serializers.DateField(validators=[NotUnderNineAge])
 
     class Meta:
         model = User

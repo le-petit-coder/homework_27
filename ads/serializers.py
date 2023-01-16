@@ -36,10 +36,11 @@ class AdCreateSerializer(serializers.ModelSerializer):
         queryset=Location.objects.all(),
         slug_field="name"
     )
+    is_published = serializers.BooleanField(default=False)
 
     class Meta:
         model = Ad
-        fields = ["id", "name", "author", "price", "locations"]
+        fields = ["id", "name", "author", "price", "locations", "is_published"]
 
     def is_valid(self, *, raise_exception=False):
         self._locations = self.initial_data.pop("locations", [])
@@ -50,7 +51,7 @@ class AdCreateSerializer(serializers.ModelSerializer):
 
         for location in self._locations:
             locations_obj, _ = Location.objects.get_or_create(name=location)
-            ad.skills.add(locations_obj)
+            ad.locations.add(locations_obj)
         ad.save()
         return ad
 
