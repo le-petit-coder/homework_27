@@ -9,13 +9,11 @@ def user_token(client, django_user_model):
     age = 25
 
     django_user_model.objects.create_user(
-        username=username, password=password, age=age
-    )
+        username=username, password=password, age=age)
 
     response = client.post(
-        "/user/login/",
-        {"username": username, "password": password, "age": age},
-        content_type="application/json"
+        "/user/token/",
+        {"username": username, "password": password},
+        format='json'
     )
-
-    return response.data("token")
+    return response.data["access"]
