@@ -7,12 +7,8 @@ from ads.serializers import SelectionSerializer, SelectionListSerializer, Select
 
 class SelectionViewSet(ModelViewSet):
     queryset = Selection.objects.all()
-    default_serializer = SelectionSerializer
-
-    serializer_classes = {
-        "list": SelectionListSerializer,
-        "retrieve": SelectionDetailSerializer
-    }
+    # default_serializer = SelectionSerializer
+    serializer_class = SelectionSerializer
 
     default_permission = [AllowAny()]
     permissions = {

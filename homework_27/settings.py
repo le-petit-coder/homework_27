@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'ads',
     'categories',
     'locations',
-    'users'
+    'users',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -147,6 +148,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': "drf_spectacular.openapi.AutoSchema",
 }
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Hunting API",
+    "DESCRIPTION": "Awesome hunting API",
+    "VERSION": "1.0.0",
+}

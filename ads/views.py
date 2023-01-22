@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated
 from ads.permissions import IsOwnerOrStuffPermission
 from django.views.decorators.csrf import csrf_exempt
@@ -17,6 +18,11 @@ def root(request):
 class AdListView(ListAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdListSerializer
+
+    @extend_schema(
+        description="Retrieve ad list",
+        summary="Ad list"
+    )
 
     def get(self, request, *args, **kwargs):
         ad_text = request.GET.get('text', None)
